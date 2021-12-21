@@ -1,3 +1,27 @@
 body {
     margin: 0px;
+    overflow: hidden;
+}
+
+#wallpaper {
+    margin: 0 auto;
+}
+
+#wallpaper img {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    object-position: center center;
+}
+
+#background {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    filter: blur(30px) brightness(85%);
+    background-position: center;
+    background-repeat: repeat;
+    background-size: fill;
+    transform: scale(1.1);
 }

@@ -6,17 +6,22 @@ function getRandomImageFromChildren(children) {
 }
 
 
-fetch('https://www.reddit.com/r/animewallpaper/hot.json')
+fetch('https://www.reddit.com/r/animewallpaper/top.json')
   .then(function(res) {
     return res.json();   // Convert the data into JSON
   })
   .then(function(res) {
-    console.log(res.data.children);   // Logs the data to the console
+    console.log(res);   // Logs the data to the console
 
-    var img = document.createElement('img');
-    img.src = getRandomImageFromChildren(res.data.children);
-    img.style = "width: 100%";
-    document.body.appendChild(img);
+    var fetchedImage = getRandomImageFromChildren(res.data.children);
+
+    var background = document.getElementById("background").style.backgroundImage = `url(\"${fetchedImage}\")`;
+    
+    var wallpaper = document.getElementById("wallpaper");
+    var img = document.createElement("img");
+    img.src = fetchedImage
+    img.setAttribute("class", "wallpaper");
+    wallpaper.appendChild(img);
   })
   .catch(function(err) {
     console.log(err);   // Log error if any
