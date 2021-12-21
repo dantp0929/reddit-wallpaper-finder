@@ -3,11 +3,11 @@ body {
     overflow: hidden;
 }
 
-#wallpaper {
+#wallpaper-wrapper {
     margin: 0 auto;
 }
 
-#wallpaper img {
+#wallpaper {
     position: absolute;
     height: 100%;
     width: 100%;
