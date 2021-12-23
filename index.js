@@ -1,5 +1,3 @@
-import { setCookie, getCookie, shuffle } from "./helpers.js";
-
 var wallpaperProperties = {
   subreddit: "animewallpaper",
   minWidth: 0,
@@ -7,55 +5,133 @@ var wallpaperProperties = {
   includeNSFW: true,
   includeLandscape: true,
   includePortrait: true,
-  minUpvotes: 0
+  minUpvotes: 0,
+  timer: 60
+}
+
+window.wallpaperPropertyListener = {
+  applyUserProperties: function(properties) {
+    if (properties.subreddit) {
+      wallpaperProperties.subreddit = properties.subreddit.value;
+    }
+    if (properties.minheight) {
+      wallpaperProperties.minHeight = properties.minheight.value;
+    }
+    if (properties.minwidth) {
+      wallpaperProperties.minWidth = properties.minwidth.value;
+    }
+    if (properties.includensfw) {
+      wallpaperProperties.includeNSFW = properties.includensfw.value;
+    }
+    if (properties.includelandscape) {
+      wallpaperProperties.includeLandscape = properties.includelandscape.value;
+    }
+    if (properties.includeportrait) {
+      wallpaperProperties.includePortrait = properties.includeportrait.value;
+    }
+    if (properties.minupvotes) {
+      wallpaperProperties.minUpvotes = properties.minupvotes.value;
+    }
+    if (properties.timer) {
+      wallpaperProperties.timer = properties.timer.value;
+      clearInterval(timer);
+
+      if (wallpaperProperties.timer != -1) {
+        timer = window.setInterval(function() { getNewWallpapers(setRandomWallpaper) }, wallpaperProperties.timer * 60 * 1000);
+      }
+    }
+    console.log(properties.minheight.value);
+  }
+}
+
+/**
+ * Set a cookie value.
+ * @param {String} cname Name of cookie.
+ * @param {String} cvalue Value of cookie.
+ * @param {number} exdays Days until the cookie expires.
+ */
+ function setCookie(cname, cvalue, exdays) {
+  const d = new Date();
+  d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+  let expires = "expires="+d.toUTCString();
+  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+/**
+ * Get a cookie.
+ * @param {String} cname Name of cookie. 
+ * @returns Value of a cookie.
+ */
+function getCookie(cname) {
+  let name = cname + "=";
+  let ca = document.cookie.split(';');
+  for(let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
+
+/**
+ * Shuffles array in place. ES6 version
+ * @param {Array} a items An array containing the items.
+ */
+ function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 // Cookies to prevent getting the same wallpapers in a row.
-var history = getCookie("history");
-if (history != "") {
-  history = JSON.parse(history);
+var wallpaperHistory = getCookie("wallpaper-history");
+if (wallpaperHistory != "") {
+  wallpaperHistory = JSON.parse(wallpaperHistory);
 }
 else {
-  history = []
+  wallpaperHistory = []
 }
 
 /**
  * Gets an image from threads in the subreddit.
  * @param {array} threads The threads in the subreddit.
- * @returns {string} url to an image.
+ * @returns {string} Thread data of the image selected.
  */
-function getImageFromThreads(wallpaperProperties, threads) {
+function getRandomThread(wallpaperProperties, threads) {
 
   for (var i = 0; i < threads.length; ++i) {
     var thread = threads[i];
     console.log(thread);
 
+    // Single image post
     if (thread.data.preview != undefined) {
-      var landscape = thread.data.preview.images[0].source.height < thread.data.preview.images[0].source.width;
-      var portrait = thread.data.preview.images[0].source.height > thread.data.preview.images[0].source.width;
-
-      if (!history.includes(thread.data.name)
+      if (!wallpaperHistory.includes(thread.data.name)
         && thread.data.preview.images[0].source.height >= wallpaperProperties.minHeight 
         && thread.data.preview.images[0].source.width >= wallpaperProperties.minWidth
         && thread.data.ups >= wallpaperProperties.minUpvotes) {
-        
-        if (thread.data.over_18 && !wallpaperProperties.includeNSFW) {
-          continue;
-        }
 
-        if (landscape && !wallpaperProperties.includeLandscape) {
-          continue;
-        }
+        var landscape = thread.data.preview.images[0].source.height < thread.data.preview.images[0].source.width;
+        var portrait = thread.data.preview.images[0].source.height > thread.data.preview.images[0].source.width;
+    
+        if (thread.data.over_18 && !wallpaperProperties.includeNSFW) { continue; }
+        if (landscape && !wallpaperProperties.includeLandscape) { continue; }
+        if (portrait && !wallpaperProperties.includePortrait) { continue; }
 
-        if (portrait && !wallpaperProperties.includePortrait) {
-          continue;
-        }
-
-        history.push(thread.data.name);
-        setCookie("history", JSON.stringify(history));
-        console.log(history);
-        return thread.data.url;
+        wallpaperHistory.push(thread.data.name);
+        setCookie("wallpaper-history", JSON.stringify(wallpaperHistory));
+        console.log(wallpaperHistory);
+        return thread.data;
       }
+    }
+    // Gallery post
+    else if (thread.data.gallery != undefined) {
+
     }
   }
   return null;
@@ -101,14 +177,30 @@ function setRandomWallpaper(response) {
   var threads = response.data.children;
   shuffle(threads);
 
-  var fetchedImage = getImageFromThreads(wallpaperProperties, threads);
-  if (fetchedImage === null) {
+  var thread = getRandomThread(wallpaperProperties, threads);
+  if (thread === null) {
     getNewWallpapers(setRandomWallpaper, threads[threads.length - 1].data.name);
   }
   else {
-    document.getElementById("background").style.backgroundImage = `url(\"${fetchedImage}\")`;
-    document.getElementById("wallpaper").src = fetchedImage;
+    var image = thread.url;
+    var link = `https://www.reddit.com/${thread.permalink}`;
+
+    console.log(wallpaperProperties);
+
+    document.getElementById("background").style.backgroundImage = `url(\"${image}\")`;
+    document.getElementById("wallpaper").src = image;
+    document.getElementById("reddit-link").href = link;
+    document.getElementById("new-wallpaper").onclick = function() {
+      clearInterval(timer);
+      timer = window.setInterval(function() { getNewWallpapers(setRandomWallpaper) }, wallpaperProperties.timer * 60 * 1000);
+      getNewWallpapers(setRandomWallpaper);
+    };
   }
 }
 
-getNewWallpapers(setRandomWallpaper);
+// First call.
+getNewWallpapers(setRandomWallpaper)
+
+// Subsequent calls by a timer.
+var timer = null;
+timer = window.setInterval(function() { getNewWallpapers(setRandomWallpaper) }, wallpaperProperties.timer * 60 * 1000);
