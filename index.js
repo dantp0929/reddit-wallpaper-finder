@@ -1,3 +1,7 @@
+
+const maxHistorySize = 50;
+
+// User properties.
 var wallpaperProperties = {
   subreddit: "animewallpaper",
   minWidth: 0,
@@ -9,11 +13,22 @@ var wallpaperProperties = {
   timer: 60
 }
 
-var redditProperties = {
+// Contains meta data of the current thread being considered.
+var redditThreadMetaData = {
   imageURL: "",
-  threadURL: ""
+  threadURL: "",
+  id: null,
+  height: null,
+  width: null,
+  upvotes: null,
+  landscape: null,
+  portrait: null,
+  nsfw: null,
 }
 
+/*
+  User properties set in wallpaper engine.
+*/
 window.wallpaperPropertyListener = {
   applyUserProperties: function(properties) {
     if (properties.subreddit) {
@@ -103,59 +118,76 @@ else {
   wallpaperHistory = []
 }
 
+function addToHistory(threadID) {
+  wallpaperHistory.push(threadID);
+
+  // Only the last 50 are saved.
+  if (wallpaperHistory.length > 50) {
+    wallpaperHistory.shift();
+  }
+
+  setCookie("wallpaper-history", JSON.stringify(wallpaperHistory));
+  console.log(wallpaperHistory);
+}
+
 /**
  * Gets an image from threads in the subreddit.
  * @param {array} threads The threads in the subreddit.
- * @returns {string} Thread data.
+ * @returns {string} Unique thread data. null if there are no unique threads on the current page.
  */
 function getRandomThread(wallpaperProperties, threads) {
 
   for (var i = 0; i < threads.length; ++i) {
     var thread = threads[i];
-    //console.log(thread);
+    console.log(thread);
+
+    // Not supporting videos
+    if (thread.data.is_video) { continue; }
 
     // Single image post
     if (thread.data.preview != undefined) {
-      if (!wallpaperHistory.includes(thread.data.name)
-        && thread.data.preview.images[0].source.height >= wallpaperProperties.minHeight 
-        && thread.data.preview.images[0].source.width >= wallpaperProperties.minWidth
-        && thread.data.ups >= wallpaperProperties.minUpvotes) {
-
-        var landscape = thread.data.preview.images[0].source.height < thread.data.preview.images[0].source.width;
-        var portrait = thread.data.preview.images[0].source.height > thread.data.preview.images[0].source.width;
-    
-        if (thread.data.over_18 && !wallpaperProperties.includeNSFW) { continue; }
-        if (landscape && !wallpaperProperties.includeLandscape) { continue; }
-        if (portrait && !wallpaperProperties.includePortrait) { continue; }
-
-        wallpaperHistory.push(thread.data.name);
-
-        // Only the last 50 are saved.
-        if (wallpaperHistory.length > 100) {
-          wallpaperHistory.shift();
-        }
-
-        setCookie("wallpaper-history", JSON.stringify(wallpaperHistory));
-        console.log(wallpaperHistory);
-
-        redditProperties.imageURL = thread.data.url;
-        redditProperties.threadURL = `https://www.reddit.com/${thread.data.permalink}`;
-
-        return redditProperties;
-      }
+      redditThreadMetaData.id = thread.data.name;
+      redditThreadMetaData.height = thread.data.preview.images[0].source.height;
+      redditThreadMetaData.width = thread.data.preview.images[0].source.width;
+      redditThreadMetaData.upvotes = thread.data.ups;
+      redditThreadMetaData.landscape = thread.data.preview.images[0].source.height <= thread.data.preview.images[0].source.width
+      redditThreadMetaData.portrait = thread.data.preview.images[0].source.height >= thread.data.preview.images[0].source.width
+      redditThreadMetaData.nsfw = thread.data.over_18;
+          
+      redditThreadMetaData.imageURL = thread.data.url;
+      redditThreadMetaData.threadURL = `https://www.reddit.com/${thread.data.permalink}`;
     }
-    // Gallery post
+    // Gallery post, get a random gallery picture
     else if (thread.data.gallery_data != undefined) {
-      console.log(thread.data);
-      console.log("Its a gallery!!!");
-
       var mediaData = Object.entries(thread.data.media_metadata);
       mediaData = mediaData[Math.floor(Math.random() * mediaData.length)][1];
       console.log(mediaData);
 
-      redditProperties.imageURL = mediaData.s.u;
-      redditProperties.threadURL = `https://www.reddit.com/comments/${thread.data.id}`;
-      return redditProperties;
+      redditThreadMetaData.id = mediaData.id;
+      redditThreadMetaData.height = mediaData.s.y;
+      redditThreadMetaData.width = mediaData.s.x;
+      redditThreadMetaData.upvotes = thread.data.ups
+      redditThreadMetaData.landscape = mediaData.s.y <= mediaData.s.x
+      redditThreadMetaData.portrait = mediaData.s.y >= mediaData.s.x
+      redditThreadMetaData.nsfw = thread.data.over_18;
+
+      redditThreadMetaData.imageURL = mediaData.s.u;
+      redditThreadMetaData.threadURL = `https://www.reddit.com/comments/${thread.data.id}`;
+    }
+
+    // Checking if it matches user's criterias.
+    if (!wallpaperHistory.includes(redditThreadMetaData.id)
+      && redditThreadMetaData.height >= wallpaperProperties.minHeight 
+      && redditThreadMetaData.width >= wallpaperProperties.minWidth
+      && redditThreadMetaData.upvotes >= wallpaperProperties.minUpvotes) {
+  
+        if (redditThreadMetaData.nsfw && !wallpaperProperties.includeNSFW) { continue; }
+        if (redditThreadMetaData.landscape && !wallpaperProperties.includeLandscape) { continue; }
+        if (redditThreadMetaData.portrait && !wallpaperProperties.includePortrait) { continue; }
+
+        addToHistory(redditThreadMetaData.id);
+
+        return redditThreadMetaData;
     }
   }
   return null;
@@ -182,7 +214,7 @@ function getNewWallpapers(callback, after=null) {
       return res.json();
     })
     .then(function(json) {
-      console.log(json);
+      //console.log(json);
       callback(json);
     })
     .catch(function(err) {
@@ -209,9 +241,9 @@ function setRandomWallpaper(response) {
   else {
     console.log(wallpaperProperties);
 
-    document.getElementById("background").style.backgroundImage = `url(\"${redditProperties.imageURL}\")`;
-    document.getElementById("wallpaper").src = redditProperties.imageURL;
-    document.getElementById("reddit-link").href = redditProperties.threadURL;
+    document.getElementById("background").style.backgroundImage = `url(\"${redditThreadMetaData.imageURL}\")`;
+    document.getElementById("wallpaper").src = redditThreadMetaData.imageURL;
+    document.getElementById("reddit-link").href = redditThreadMetaData.threadURL;
     document.getElementById("new-wallpaper").onclick = function() {
       clearInterval(timer);
       timer = window.setInterval(function() { getNewWallpapers(setRandomWallpaper) }, wallpaperProperties.timer * 60 * 1000);
