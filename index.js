@@ -1,5 +1,5 @@
 
-const maxHistorySize = 50;
+const historySize = 50;
 
 // User properties.
 var wallpaperProperties = {
@@ -121,8 +121,8 @@ else {
 function addToHistory(threadID) {
   wallpaperHistory.push(threadID);
 
-  // Only the last 50 are saved.
-  if (wallpaperHistory.length > 50) {
+  // Make room in history if it is bigger than historySize
+  if (wallpaperHistory.length > historySize) {
     wallpaperHistory.shift();
   }
 
@@ -157,6 +157,7 @@ function getRandomThread(wallpaperProperties, threads) {
       redditThreadMetaData.imageURL = thread.data.url;
       redditThreadMetaData.threadURL = `https://www.reddit.com/${thread.data.permalink}`;
     }
+
     // Gallery post, get a random gallery picture
     else if (thread.data.gallery_data != undefined) {
       var mediaData = Object.entries(thread.data.media_metadata);
@@ -244,6 +245,7 @@ function setRandomWallpaper(response) {
     document.getElementById("background").style.backgroundImage = `url(\"${redditThreadMetaData.imageURL}\")`;
     document.getElementById("wallpaper").src = redditThreadMetaData.imageURL;
     document.getElementById("reddit-link").href = redditThreadMetaData.threadURL;
+    document.getElementById("reddit-link").title = redditThreadMetaData.threadURL;
     document.getElementById("new-wallpaper").onclick = function() {
       clearInterval(timer);
       timer = window.setInterval(function() { getNewWallpapers(setRandomWallpaper) }, wallpaperProperties.timer * 60 * 1000);
