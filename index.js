@@ -3,14 +3,14 @@ const historySize = 50;
 
 // User properties.
 var wallpaperProperties = {
-  subreddit: "animewallpaper",
+  subreddit: "wallpapers",
   minWidth: 0,
   minHeight: 0,
-  includeNSFW: true,
+  includeNSFW: false,
   includeLandscape: true,
   includePortrait: true,
   minUpvotes: 0,
-  timer: 60
+  timer: -1
 }
 
 // Contains meta data of the current thread being considered.
@@ -60,7 +60,6 @@ window.wallpaperPropertyListener = {
         timer = window.setInterval(function() { getNewWallpapers(setRandomWallpaper) }, wallpaperProperties.timer * 60 * 1000);
       }
     }
-    console.log(properties.minheight.value);
   }
 }
 
@@ -132,8 +131,8 @@ function addToHistory(threadID) {
 
 /**
  * Gets an image from threads in the subreddit.
- * @param {array} threads The threads in the subreddit.
- * @returns {string} Unique thread data. null if there are no unique threads on the current page.
+ * @param {Array} threads The threads in the subreddit.
+ * @returns {String} Unique thread data. null if there are no unique threads on the current page.
  */
 function getRandomThread(wallpaperProperties, threads) {
 
@@ -197,7 +196,7 @@ function getRandomThread(wallpaperProperties, threads) {
 /**
  * Get a new wallpaper from reddit.
  * @param {Function} callback Function that takes a json as a parameter.
- * @param {*} after Used in reddit's API to determine what threads to show.
+ * @param {threadID} after Used in reddit's API to determine what threads to show.
  */
 function getNewWallpapers(callback, after=null) {
   var request = "";
@@ -224,10 +223,8 @@ function getNewWallpapers(callback, after=null) {
 }
 
 /**
- * Gets a new wallpaper and displays it.
- * @param {String} subreddit The string after "r/" for reddit subreddits.
- * @param {number} minWidth The minimum width an image can be.
- * @param {number} minHeight The minimum height an image can be.
+ * Set a random wallpaper from a response.
+ * @param {String} response json response.
  */
 function setRandomWallpaper(response) {
   console.log(response);
@@ -247,16 +244,20 @@ function setRandomWallpaper(response) {
     document.getElementById("reddit-link").href = redditThreadMetaData.threadURL;
     document.getElementById("reddit-link").title = redditThreadMetaData.threadURL;
     document.getElementById("new-wallpaper").onclick = function() {
-      clearInterval(timer);
-      timer = window.setInterval(function() { getNewWallpapers(setRandomWallpaper) }, wallpaperProperties.timer * 60 * 1000);
+      if (wallpaperProperties.timer != -1) {
+        clearInterval(timer);
+        timer = window.setInterval(function() { getNewWallpapers(setRandomWallpaper) }, wallpaperProperties.timer * 60 * 1000);
+      }
       getNewWallpapers(setRandomWallpaper);
     };
   }
 }
 
-// First call.
+// First call. setRandomWallpaper is a callback function
 getNewWallpapers(setRandomWallpaper)
 
 // Subsequent calls by a timer.
 var timer = null;
-timer = window.setInterval(function() { getNewWallpapers(setRandomWallpaper) }, wallpaperProperties.timer * 60 * 1000);
+if (wallpaperProperties.timer != -1) {
+  timer = window.setInterval(function() { getNewWallpapers(setRandomWallpaper) }, wallpaperProperties.timer * 60 * 1000);
+}
