@@ -156,14 +156,13 @@ function setRandomWallpaper(response) {
 }
 
 // First call. setRandomWallpaper is a callback function
-
-
 function startup() {
   if (loaded === false) {
     console.log("Not loaded");
     window.setTimeout(startup, 1000);
   }
   else {
+    console.log("Loaded!");
     getNewWallpapers(setRandomWallpaper)
   }
 }

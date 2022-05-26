@@ -32,43 +32,37 @@ var redditThreadMetaData = {
 /*
   User properties set in wallpaper engine.
 */
-console.log(window.wallpaperPropertyListener);
-if (window.wallpaperPropertyListener !== undefined) {
-  window.wallpaperPropertyListener = {
-    applyUserProperties: function(properties) {
-      if (properties.subreddit) {
-        wallpaperProperties.subreddit = properties.subreddit.value;
-      }
-      if (properties.minheight) {
-        wallpaperProperties.minHeight = properties.minheight.value;
-      }
-      if (properties.minwidth) {
-        wallpaperProperties.minWidth = properties.minwidth.value;
-      }
-      if (properties.includensfw) {
-        wallpaperProperties.includeNSFW = properties.includensfw.value;
-      }
-      if (properties.includelandscape) {
-        wallpaperProperties.includeLandscape = properties.includelandscape.value;
-      }
-      if (properties.includeportrait) {
-        wallpaperProperties.includePortrait = properties.includeportrait.value;
-      }
-      if (properties.minupvotes) {
-        wallpaperProperties.minUpvotes = properties.minupvotes.value;
-      }
-      if (properties.timer) {
-        wallpaperProperties.timer = properties.timer.value;
-        clearInterval(timer);
-  
-        if (wallpaperProperties.timer != -1) {
-          timer = window.setInterval(function() { getNewWallpapers(setRandomWallpaper) }, wallpaperProperties.timer * 60 * 1000);
-        }
-      }
-      loaded = true;
+window.wallpaperPropertyListener = {
+  applyUserProperties: function(properties) {
+    if (properties.subreddit) {
+      wallpaperProperties.subreddit = properties.subreddit.value;
     }
+    if (properties.minheight) {
+      wallpaperProperties.minHeight = properties.minheight.value;
+    }
+    if (properties.minwidth) {
+      wallpaperProperties.minWidth = properties.minwidth.value;
+    }
+    if (properties.includensfw) {
+      wallpaperProperties.includeNSFW = properties.includensfw.value;
+    }
+    if (properties.includelandscape) {
+      wallpaperProperties.includeLandscape = properties.includelandscape.value;
+    }
+    if (properties.includeportrait) {
+      wallpaperProperties.includePortrait = properties.includeportrait.value;
+    }
+    if (properties.minupvotes) {
+      wallpaperProperties.minUpvotes = properties.minupvotes.value;
+    }
+    if (properties.timer) {
+      wallpaperProperties.timer = properties.timer.value;
+      clearInterval(timer);
+
+      if (wallpaperProperties.timer != -1) {
+        timer = window.setInterval(function() { getNewWallpapers(setRandomWallpaper) }, wallpaperProperties.timer * 60 * 1000);
+      }
+    }
+    loaded = true;
   }
-}
-else {
-  loaded = true;
 }
