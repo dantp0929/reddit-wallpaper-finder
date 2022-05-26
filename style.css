@@ -21,6 +21,27 @@ p {
     filter: brightness(100%);
 }
 
+#reddit-link #popup{
+    opacity: 0%;
+    background-color: rgba(0, 0, 0, 0.5);
+    margin-top: 10px;
+    position: absolute;
+    text-align: left;
+    padding: 10px;
+    border-radius: 10px;
+    margin-left: 77.5px;
+    transform: translate(-50%, 0%);
+}
+
+#reddit-link:hover #popup{
+    opacity: 100%;
+    transition: all .2s ease-out;
+}
+
+#popup {
+    pointer-events: none;
+}
+
 #wallpaper-wrapper {
     margin: 0 auto;
 }

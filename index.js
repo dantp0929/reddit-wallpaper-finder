@@ -23,6 +23,9 @@ var redditThreadMetaData = {
   landscape: null,
   portrait: null,
   nsfw: null,
+  poster: "",
+  title: "",
+  subreddit: ""
 }
 
 /*
@@ -109,6 +112,10 @@ function getRandomThread(wallpaperProperties, threads) {
           
       redditThreadMetaData.imageURL = thread.data.url;
       redditThreadMetaData.threadURL = `https://www.reddit.com/${thread.data.permalink}`;
+
+      redditThreadMetaData.poster = thread.data.author;
+      redditThreadMetaData.title = thread.data.title;
+      redditThreadMetaData.subreddit = thread.data.subreddit_name_prefixed;
     }
 
     // Gallery post, get a random gallery picture
@@ -127,6 +134,10 @@ function getRandomThread(wallpaperProperties, threads) {
 
       redditThreadMetaData.imageURL = mediaData.s.u;
       redditThreadMetaData.threadURL = `https://www.reddit.com/comments/${thread.data.id}`;
+      
+      redditThreadMetaData.poster = thread.data.author;
+      redditThreadMetaData.title = thread.data.title;
+      redditThreadMetaData.subreddit = thread.data.subreddit_name_prefixed;
     }
 
     // Checking if it matches user's criterias.
@@ -195,11 +206,10 @@ function setRandomWallpaper(response) {
 
     document.getElementById("background").style.backgroundImage = `url(\"${redditThreadMetaData.imageURL}\")`;
     document.getElementById("wallpaper").src = redditThreadMetaData.imageURL;
-    //document.getElementById("reddit-link").href = redditThreadMetaData.threadURL;
     document.getElementById("reddit-link").title = redditThreadMetaData.threadURL;
-    document.getElementById("reddit-link").onclick = function() {
-      copyToClipboard(redditThreadMetaData.threadURL);
-    }
+    document.getElementById("popup").innerHTML = redditThreadMetaData.subreddit + "<br />" + 
+      redditThreadMetaData.poster + "<br />" + redditThreadMetaData.title + "<br />" + 
+      redditThreadMetaData.threadURL;
     document.getElementById("new-wallpaper").onclick = function() {
       if (wallpaperProperties.timer != -1) {
         clearInterval(timer);
