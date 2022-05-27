@@ -105,7 +105,7 @@ p {
     width: 100%;
     filter: blur(30px) brightness(85%);
     transform: scale(1.1);
-    object-fit: fill;
+    object-fit: cover;
     object-position: center center;
 }
 
@@ -117,6 +117,8 @@ p {
     width: 100%;
     filter: blur(30px) brightness(85%);
     transform: scale(1.1);
+    object-fit: cover;
+    object-position: center center;
 }
 
 .button-container {
