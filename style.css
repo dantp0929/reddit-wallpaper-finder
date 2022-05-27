@@ -3,6 +3,39 @@ body {
     overflow: hidden;
 }
 
+#loading-screen {
+    z-index: 100;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    background: radial-gradient(rgb(255, 86, 0), rgb(255, 103, 28));
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    pointer-events: none;
+}
+
+#loading-screen h1 {
+    font-size: 200px;
+    color: rgb(230, 255, 239);
+    filter: drop-shadow(5px 5px 2px rgb(107, 37, 2));
+}
+
+#loading-screen p{
+    color: rgb(250, 250, 250);
+}
+
+.visible {
+    opacity: 100%;
+    transition: 2s;
+}
+
+.invisible {
+    opacity: 0%;
+    transition: 2s;
+}
+
 a {
     text-decoration: none;
     color: whitesmoke;
@@ -47,6 +80,17 @@ p {
 }
 
 #wallpaper {
+    z-index: 1;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    object-position: center center;
+}
+
+#next-wallpaper {
+    z-index: 2;
+    animation: fadeIn 2s;
     position: absolute;
     height: 100%;
     width: 100%;
@@ -66,6 +110,7 @@ p {
 }
 
 .button-container {
+    z-index: 3;
     display: flex;
     justify-content: space-evenly;
 	position: fixed;
@@ -93,4 +138,9 @@ p {
     width: 50px;
     height: 50px;
     margin-top: 20px;
+}
+
+@keyframes fadeIn {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
 }

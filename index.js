@@ -118,8 +118,17 @@ function getNewWallpapers(callback, after=null) {
       callback(json);
     })
     .catch(function(err) {
+      document.getElementById("internet-warning").innerHTML("This wallpaper requires internet connection!");
       console.log(err);   // Log error if any
     });
+}
+
+function crossFade(oldWallpaper, newWallpaper) {
+  newWallpaper.src = redditThreadMetaData.imageURL;
+  newWallpaper.style.animation = "none";
+  newWallpaper.offsetHeight;
+  newWallpaper.style.animation = "fadeIn 2s";
+  window.setTimeout(function(){oldWallpaper.src = redditThreadMetaData.imageURL}, 2000);
 }
 
 /**
@@ -140,11 +149,13 @@ function setRandomWallpaper(response) {
     console.log(wallpaperProperties);
 
     document.getElementById("background").style.backgroundImage = `url(\"${redditThreadMetaData.imageURL}\")`;
-    document.getElementById("wallpaper").src = redditThreadMetaData.imageURL;
     document.getElementById("reddit-link").title = redditThreadMetaData.threadURL;
     document.getElementById("popup").innerHTML = redditThreadMetaData.subreddit + "<br />" + 
       redditThreadMetaData.poster + "<br />" + redditThreadMetaData.title + "<br />" + 
       redditThreadMetaData.threadURL;
+
+    crossFade(document.getElementById("wallpaper"), document.getElementById("next-wallpaper"));
+
     document.getElementById("new-wallpaper").onclick = function() {
       if (wallpaperProperties.timer != -1) {
         clearInterval(timer);
@@ -164,6 +175,7 @@ function startup() {
   else {
     console.log("Loaded!");
     getNewWallpapers(setRandomWallpaper)
+    document.getElementById("loading-screen").className = "invisible";
   }
 }
 
