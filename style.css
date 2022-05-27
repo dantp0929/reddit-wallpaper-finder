@@ -6,8 +6,8 @@ body {
 #loading-screen {
     z-index: 100;
     position: absolute;
-    height: 100%;
-    width: 100%;
+    height: 100vh;
+    width: 100vw;
     display: flex;
     background: radial-gradient(rgb(255, 86, 0), rgb(255, 103, 28));
     align-items: center;
@@ -80,45 +80,42 @@ p {
 }
 
 #wallpaper {
-    z-index: 1;
     position: absolute;
-    height: 100%;
-    width: 100%;
+    height: 100vh;
+    width: 100vw;
     object-fit: contain;
     object-position: center center;
 }
 
 #next-wallpaper {
-    z-index: 2;
-    animation: fadeIn 1s;
     position: absolute;
-    height: 100%;
-    width: 100%;
+    height: 100vh;
+    width: 100vw;
     object-fit: contain;
     object-position: center center;
 }
 
 #background {
-    z-index: 1;
     position: absolute;
-    height: 100%;
-    width: 100%;
-    filter: blur(30px) brightness(85%);
-    transform: scale(1.1);
+    height: 100vh;
+    width: 100vw;
     object-fit: cover;
     object-position: center center;
 }
 
 #next-background {
-    animation: fadeIn 1s;
-    z-index: 2;
     position: absolute;
-    height: 100%;
-    width: 100%;
-    filter: blur(30px) brightness(85%);
-    transform: scale(1.1);
+    height: 100vh;
+    width: 100vw;
     object-fit: cover;
     object-position: center center;
+}
+
+.frosted-glass {
+    position: absolute;
+    backdrop-filter: blur(30px);
+    height: 100vh;
+    width: 100vw;
 }
 
 .button-container {
@@ -155,4 +152,24 @@ p {
 @keyframes fadeIn {
     0% {opacity: 0;}
     100% {opacity: 1;}
+}
+
+@-moz-keyframes fadeIn {
+    0% {opacity:0;}
+    100% {opacity:1;}
+}
+
+@-webkit-keyframes fadeIn {
+    0% {opacity:0;}
+    100% {opacity:1;}
+}
+
+@-o-keyframes fadeIn {
+    0% {opacity:0;}
+    100% {opacity:1;}
+}
+
+@-ms-keyframes fadeIn {
+    0% {opacity:0;}
+    100% {opacity:1;}
 }
