@@ -90,7 +90,7 @@ p {
 
 #next-wallpaper {
     z-index: 2;
-    animation: fadeIn 2s;
+    animation: fadeIn 1s;
     position: absolute;
     height: 100%;
     width: 100%;
@@ -99,13 +99,23 @@ p {
 }
 
 #background {
+    z-index: 1;
     position: absolute;
     height: 100%;
     width: 100%;
     filter: blur(30px) brightness(85%);
-    background-position: center;
-    background-repeat: repeat;
-    background-size: fill;
+    transform: scale(1.1);
+    object-fit: fill;
+    object-position: center center;
+}
+
+#next-background {
+    animation: fadeIn 1s;
+    z-index: 2;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    filter: blur(30px) brightness(85%);
     transform: scale(1.1);
 }
 

@@ -123,12 +123,22 @@ function getNewWallpapers(callback, after=null) {
     });
 }
 
-function crossFade(oldWallpaper, newWallpaper) {
+function crossFade(oldBackground, newBackground, oldWallpaper, newWallpaper, button) {
+  button.style.pointerEvents = "none";
   newWallpaper.src = redditThreadMetaData.imageURL;
   newWallpaper.style.animation = "none";
   newWallpaper.offsetHeight;
-  newWallpaper.style.animation = "fadeIn 2s";
-  window.setTimeout(function(){oldWallpaper.src = redditThreadMetaData.imageURL}, 2000);
+  newWallpaper.style.animation = "fadeIn 1s";
+
+  newBackground.src = redditThreadMetaData.imageURL;
+  newBackground.style.animation = "none";
+  newBackground.offsetHeight;
+  newBackground.style.animation = "fadeIn 1s";
+  window.setTimeout(function(){
+    oldWallpaper.src = redditThreadMetaData.imageURL;
+    oldBackground.src = redditThreadMetaData.imageURL;
+    button.removeAttribute("style");
+  }, 1100);
 }
 
 /**
@@ -148,19 +158,22 @@ function setRandomWallpaper(response) {
   else {
     console.log(wallpaperProperties);
 
-    document.getElementById("background").style.backgroundImage = `url(\"${redditThreadMetaData.imageURL}\")`;
     document.getElementById("reddit-link").title = redditThreadMetaData.threadURL;
     document.getElementById("popup").innerHTML = redditThreadMetaData.subreddit + "<br />" + 
       redditThreadMetaData.poster + "<br />" + redditThreadMetaData.title + "<br />" + 
       redditThreadMetaData.threadURL;
+    
+    const nextWallpaperButton = document.getElementById("new-wallpaper")
 
-    crossFade(document.getElementById("wallpaper"), document.getElementById("next-wallpaper"));
+    crossFade(document.getElementById("background"), document.getElementById("next-background"),
+      document.getElementById("wallpaper"), document.getElementById("next-wallpaper"), nextWallpaperButton);
 
-    document.getElementById("new-wallpaper").onclick = function() {
+    nextWallpaperButton.onclick = function() {
       if (wallpaperProperties.timer != -1) {
         clearInterval(timer);
         timer = window.setInterval(function() { getNewWallpapers(setRandomWallpaper) }, wallpaperProperties.timer * 60 * 1000);
       }
+      nextWallpaperButton.style.pointerEvents = "none";
       getNewWallpapers(setRandomWallpaper);
     };
   }
