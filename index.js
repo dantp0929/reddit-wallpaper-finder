@@ -117,11 +117,11 @@ function getNewWallpapers(callback, after=null) {
       return res.json();
     })
     .then(function(json) {
-      //console.log(json);
       callback(json);
     })
     .catch(function(err) {
       document.getElementById("internet-warning").innerHTML = "This wallpaper requires internet connection!";
+      window.setTimeout(startup, 5000);
       console.log(err);   // Log error if any
     });
 }
@@ -140,6 +140,7 @@ function crossFade(oldBackground, newBackground, oldWallpaper, newWallpaper, but
   newBackground.style.animation = "fadeIn .2s";
 
   window.setTimeout(function(){
+    document.getElementById("loading-screen").className = "invisible";
     oldWallpaper.src = redditThreadMetaData.imageURL;
     oldBackground.src = redditThreadMetaData.imageURL;
     button.removeAttribute("style");
@@ -205,13 +206,12 @@ function setRandomWallpaper(response) {
 // First call. setRandomWallpaper is a callback function
 function startup() {
   if (loaded === false) {
-    console.log("Not loaded");
+    console.log("Wallpaper engine properties not loaded.");
     window.setTimeout(startup, 1000);
   }
   else {
-    console.log("Loaded!");
+    console.log("Attempting to get wallpaper...");
     getNewWallpapers(setRandomWallpaper)
-    document.getElementById("loading-screen").className = "invisible";
   }
 }
 
@@ -219,6 +219,6 @@ startup();
 
 // Subsequent calls by a timer.
 var timer = null;
-if (wallpaperProperties.timer != -1) {
+if (loaded && wallpaperProperties.timer != -1) {
   timer = window.setInterval(function() { getNewWallpapers(setRandomWallpaper) }, wallpaperProperties.timer * 60 * 1000);
 }

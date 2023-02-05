@@ -66,5 +66,3 @@ window.wallpaperPropertyListener = {
     loaded = true;
   }
 }
-
-window.setTimeout(function(){loaded=true}, 5000)
